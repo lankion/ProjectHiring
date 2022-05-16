@@ -4,109 +4,78 @@ using UnityEngine;
 using TMPro;
 public class KeyManager : GameManager
 {
-    private Key[] key; //Array to armazenate the keys data
+    private Key[] keyDefault; //Array to armazenate the keys data.
+    private short cooldownColor = 1;
+    private Color beenPressed, notPressed;
     void Start()
     {
+        beenPressed = new Color(1.0f, 0.1f, 0.1f);
+        notPressed = new Color(1.0f, 1.0f, 1.0f);
         StartTheKeys();
         UpdateTheKeys();
     }
 
     void Update()
     {
-        CheckInput();
+        if(Input.anyKeyDown) CheckInput(Input.inputString);
     }
 
-    void StartTheKeys() //Get all the keys and they respective GOs
+    void StartTheKeys() //Get all the keys and they respective GOs.
     {
-        key = new Key[8];
+        keyDefault = new Key[8];
 
-        key[0] = new Key('A', GameObject.Find("Letters/Canvas/00"));
-        key[1] = new Key('S', GameObject.Find("Letters/Canvas/01"));
-        key[2] = new Key('D', GameObject.Find("Letters/Canvas/02"));
-        key[3] = new Key('F', GameObject.Find("Letters/Canvas/03"));
-        key[4] = new Key('J', GameObject.Find("Letters/Canvas/04"));
-        key[5] = new Key('K', GameObject.Find("Letters/Canvas/05"));
-        key[6] = new Key('L', GameObject.Find("Letters/Canvas/06"));
-        key[7] = new Key('Ç', GameObject.Find("Letters/Canvas/07"));
+        keyDefault[0] = new Key("a", GameObject.Find("Letters/Canvas/00").GetComponent<TextMeshProUGUI>());
+        keyDefault[1] = new Key("s", GameObject.Find("Letters/Canvas/01").GetComponent<TextMeshProUGUI>());
+        keyDefault[2] = new Key("d", GameObject.Find("Letters/Canvas/02").GetComponent<TextMeshProUGUI>());
+        keyDefault[3] = new Key("f", GameObject.Find("Letters/Canvas/03").GetComponent<TextMeshProUGUI>());
+        keyDefault[4] = new Key("j", GameObject.Find("Letters/Canvas/04").GetComponent<TextMeshProUGUI>());
+        keyDefault[5] = new Key("k", GameObject.Find("Letters/Canvas/05").GetComponent<TextMeshProUGUI>());
+        keyDefault[6] = new Key("l", GameObject.Find("Letters/Canvas/06").GetComponent<TextMeshProUGUI>());
+        keyDefault[7] = new Key("ç", GameObject.Find("Letters/Canvas/07").GetComponent<TextMeshProUGUI>());
     }
 
-    void UpdateTheKeys() //Update in the scene the text with the key letter/character
+    void UpdateTheKeys() //Update in the scene the text with the key letter/character.
     {
         for (int i = 0; i < 8; i++)
         {
-            //Debug.Log(key[i].gObject.GetComponent<TextMeshProUGUI>());
-            key[i].gObject.GetComponent<TextMeshProUGUI>().SetText(key[i].button.ToString());
+            keyDefault[i].tmp.GetComponent<TextMeshProUGUI>().SetText(keyDefault[i].button.ToUpper());
         }
     }
 
-    public class Key //Class to organize and easily update the keys data
+    public class Key //Class to organize and easily update the keys data.
     {
-        [HideInInspector] public char button;
-        [HideInInspector] public GameObject gObject;
-        public Key(char b, GameObject g)
+        [HideInInspector] public string button;
+        [HideInInspector] public TextMeshProUGUI tmp;
+        public Key(string b, TextMeshProUGUI g)
         {
             button = b;
-            gObject = g;
+            tmp = g;
         }
 
-        public Key(char b)
+        public Key(string b)
         {
             button = b;
         }
     }
 
-    public void CheckInput()
+    void CheckInput(string keyPressed)
     {
-        if(Input.anyKeyDown)
+        for (int i = 0; i < 8; i++)
         {
-            if(Input.GetButtonDown("key0"))
+            if(keyPressed == keyDefault[i].button)
             {
-                Debug.Log(key[0].button.ToString() + " has been pressed");
+                Debug.Log(keyDefault[i].button + " has been pressed.");
+                StartCoroutine(ChangeTheColor(keyDefault[i].tmp));
                 return;
             }
-
-            if(Input.GetButtonDown("key1"))
-            {
-                Debug.Log(key[1].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key2"))
-            {
-                Debug.Log(key[2].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key3"))
-            {
-                Debug.Log(key[3].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key4"))
-            {
-                Debug.Log(key[4].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key5"))
-            {
-                Debug.Log(key[5].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key6"))
-            {
-                Debug.Log(key[6].button.ToString() + " has been pressed");
-                return;
-            }
-
-            if(Input.GetButtonDown("key7"))
-            {
-                Debug.Log(key[7].button.ToString() + " has been pressed");
-                return;
-            }
-            Debug.Log("A random key has been pressed");
         }
+        Debug.Log("A random key has been pressed");
+    }
+
+    IEnumerator ChangeTheColor(TextMeshProUGUI tmpToChange) //Change the color for some seconds and change back.
+    {
+        tmpToChange.color = beenPressed;
+        yield return new WaitForSeconds(cooldownColor);
+        tmpToChange.color = notPressed;
     }
 }
